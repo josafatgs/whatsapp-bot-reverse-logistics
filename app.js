@@ -49,48 +49,80 @@ const MYSQL_DB_PORT = '3306'
  * */
 
 
-const flowMotivoDevolucion = addKeyword(['Iniciar devolucion', 'Inciar devolución', 'iniciar devolucion', 'iniciar devolución'])
+// Flujo para capturar el motivo de devolución
+const flowMotivoDevolucion = addKeyword(['Iniciar devolución'])
+    .addAnswer('📦 Por favor selecciona el motivo de devolución:')
     .addAnswer(
         [
-            '👉 Por favor, selecciona el motivo de tu devolución de la siguiente lista',
-            '1. Daño de paqueteria',
-            '2. Producto roto de origen',
-            '3. Producto incorrecto',
-            '4. Paquete incompleto',
-            '5. Producto defectuoso de fabrica',
+            '1️⃣ Daño de paquetería',
+            '2️⃣ Producto roto de origen',
+            '3️⃣ Producto incorrecto',
+            '4️⃣ Paquete incompleto',
+            '5️⃣ Producto defectuoso de fábrica',
         ],
+        { capture: true },
+        async (ctx, { flow }) => {
+            // Guardar el motivo seleccionado
+            const motivo = ctx.body;
+            flowMotivoDevolucion.addAnswer('📅 ¿En qué fecha recibiste el producto?', { capture: true });
+        }
     )
-    .addAnswer('¿Cual es el motivo?', { capture: true})
-    .addAnswer('👉 Por favor, ingresa la fecha en que se recibio el producto', { capture: true })
-    .addAnswer('👉 Por favor, ingresa el motivo de la devolucion (Explicacion detallada)', { capture: true })
-    .addAnswer('👉 Por favor, sube imagenes, videos del producto, paquete', { capture: true })
-    .addAnswer('👉 Por favor, ingresa el numero del pedido', { capture: true })
-    .addAnswer('👉 Por favor, ingresa el numero del ticket', { capture: true })
-    .addAnswer('👉 Por favor, ingresa el numero del cliente', { capture: true })
-    .addAnswer('👉 Por favor, ingresa los productos a devolver', { capture: true })
-    .addAnswer('Gracias por tu informacion, un asesor se pondra en contacto contigo en las proximas 24hr para continuar con el proceso de devolucion')
+    .addAnswer(
+        '✍️ Explica brevemente el motivo de tu devolución',
+        { capture: true },
+        async (ctx, { flow }) => {
+            const explicacion = ctx.body;
+            // Guardar la explicación
+            flowMotivoDevolucion.addAnswer(
+                '📸 Por favor, envía imágenes o videos del producto/paquete dañado o defectuoso',
+                { capture: true }
+            );
+        }
+    )
+    .addAnswer(
+        '📝 Por favor, proporciona el número de tu pedido:',
+        { capture: true }
+    )
+    .addAnswer(
+        '🎟️ Proporciona el número de ticket asociado a la compra:',
+        { capture: true }
+    )
+    .addAnswer(
+        '👤 Proporciona tu número de cliente:',
+        { capture: true }
+    )
+    .addAnswer(
+        '📦 Proporciónanos los productos a devolver. Por favor, incluye el SKU y la cantidad en el siguiente formato:',
+        'SKU: [SKU_PRODUCTO], Cantidad: [CANTIDAD]',
+        { capture: true }
+    )
+    .addAnswer('✅ ¡Gracias por proporcionar toda la información! Un asesor se pondrá en contacto contigo para continuar con el proceso.')
+    .addAnswer(
+        '👉 Si tienes alguna otra pregunta, no dudes en escribir *Soporte* para hablar con un asesor.'
+    );
 
 
 const flowPrincipal = addKeyword(['Devolucion', 'devolucion', 'Devolución', 'devolución'])
-    .addAnswer('🙌 Hola, gracias por contactarte, iniciemos el proceso de devolucion.')
-    .addAnswer(
-        [
-            'A continuacion te muestro los pasos a seguir para realizar la devolucion:',
-            '👉 Llenas la solicitud de devolución',
-            '👉 Un asesor la recibe, y te contacta en caso de requerir mayor información',
-            '👉 En caso de que la devolucion a sucursal se apruebe, el asesor te contacta y te pide un deposito para el envio de la devolucion',
-            '👉 El asesor te comparte una guia de envio para que mandes los productos a una de nuestra sucursales',
-            '👉 Una vez que recibimos el producto en nuestra sucursal, daremos una resolucion a tu devolucion en las proximas 48hr',
-            '👉 En caso de que la resolucion de devolucion sea aprobada, se te otorgara una nota de credito, En caso de que la resolucion de devolucion sea rechazada, se te notificara el motivo',
-            'Para más informacion puedes revisar nuestra *Politica de devoluciones y garantías*: https://www.tiendanube.com/ayuda/politicas-de-devolucion-y-garantia',
-        ]
-    )
-    .addAnswer(
-         '👉 Para iniciar la devolucion, escribe *Iniciar devolucion*',
-        null,
-        null,
-        [flowMotivoDevolucion]
-    )
+.addAnswer('🙌 Hola, gracias por contactarte, iniciemos el proceso de devolución.')
+.addAnswer(
+    [
+        'A continuación te muestro los pasos a seguir para realizar la devolución:',
+        '👉 Llenas la solicitud de devolución',
+        '👉 Un asesor la recibe y te contacta en caso de requerir mayor información',
+        '👉 En caso de que la devolución a sucursal se apruebe, el asesor te contacta y te pide un depósito para el envío de la devolución',
+        '👉 El asesor te comparte una guía de envío para que mandes los productos a una de nuestras sucursales',
+        '👉 Una vez que recibimos el producto en nuestra sucursal, daremos una resolución a tu devolución en las próximas 48 hrs',
+        '👉 Si la resolución de devolución es aprobada, se te otorgará una nota de crédito. Si la resolución es rechazada, te notificaremos el motivo.',
+        'Para más información puedes revisar nuestra *Política de devoluciones y garantías*: https://www.tiendanube.com/ayuda/politicas-de-devolucion-y-garantia',
+    ]
+)
+.addAnswer(
+        '👉 Para iniciar la devolución, escribe *Iniciar devolución*',
+    null,
+    null,
+    [flowMotivoDevolucion]
+);
+
 
 const main = async () => {
     const adapterDB = new MySQLAdapter({
